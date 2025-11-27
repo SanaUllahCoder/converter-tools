@@ -84,7 +84,11 @@ function renderFilesList() {
         return;
     }
 
-    filesList.innerHTML = files.map((file, index) => `
+    filesList.innerHTML = files.map((file, index) => {
+        const webpSize = file.converted ? formatFileSize(file.converted.blob.size) : '';
+        const sizeChange = file.converted ? calculateSizeChange(file.size, file.converted.blob.size) : null;
+        
+        return `
         <div class="file-card ${file.converted ? 'converted' : ''}" data-index="${index}">
             <div class="file-header">
                 <div class="file-name">${file.name}</div>
@@ -101,7 +105,20 @@ function renderFilesList() {
                 <div class="preview-col">
                     <div class="preview-box" id="preview-${index}">
                         <span class="file-type-badge">WEBP</span>
-                        ${file.converted ? `<img src="${file.converted.dataUrl}" alt="Converted ${file.name}">` : '<div class="empty-preview"><i class="fas fa-hourglass-half"></i></div>'}
+                        ${file.converted ? `
+                            <img src="${file.converted.dataUrl}" alt="Converted ${file.name}">
+                            <div class="webp-size-overlay">
+                                ${webpSize}
+                                ${sizeChange ? `
+                                    <span class="size-change-indicator">
+                                        ${sizeChange > 0 ? 
+                                            `<span class="size-change-positive">(+${sizeChange}%)</span>` : 
+                                            `<span class="size-change-negative">(${sizeChange}%)</span>`
+                                        }
+                                    </span>
+                                ` : ''}
+                            </div>
+                        ` : '<div class="empty-preview"><i class="fas fa-hourglass-half"></i></div>'}
                     </div>
                     <div class="preview-label">Converted WEBP</div>
                 </div>
@@ -141,7 +158,7 @@ function renderFilesList() {
                 </button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     // Extract dimensions for each file
     files.forEach((file, index) => {
@@ -249,7 +266,24 @@ async function convertFile(index) {
             
             // Update UI
             const previewElement = document.getElementById(`preview-${index}`);
-            previewElement.innerHTML = `<span class="file-type-badge">WEBP</span><img src="${dataUrl}" alt="Converted ${file.name}">`;
+            const webpSize = formatFileSize(blob.size);
+            const sizeChange = calculateSizeChange(file.size, blob.size);
+            
+            previewElement.innerHTML = `
+                <span class="file-type-badge">WEBP</span>
+                <img src="${dataUrl}" alt="Converted ${file.name}">
+                <div class="webp-size-overlay">
+                    ${webpSize}
+                    ${sizeChange ? `
+                        <span class="size-change-indicator">
+                            ${sizeChange > 0 ? 
+                                `<span class="size-change-positive">(+${sizeChange}%)</span>` : 
+                                `<span class="size-change-negative">(${sizeChange}%)</span>`
+                            }
+                        </span>
+                    ` : ''}
+                </div>
+            `;
             
             statusElement.innerHTML = '<span class="success-message"><i class="fas fa-check-circle"></i> Conversion Complete</span>';
             progressBar.style.width = '100%';
@@ -381,6 +415,11 @@ function calculateSizeReduction(originalSize, newSize) {
 
 function calculateSizeIncrease(originalSize, newSize) {
     return Math.round(((newSize - originalSize) / originalSize) * 100);
+}
+
+function calculateSizeChange(originalSize, newSize) {
+    const change = ((newSize - originalSize) / originalSize) * 100;
+    return Math.round(change);
 }
 
 function removeFile(index) {

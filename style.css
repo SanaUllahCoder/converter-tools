@@ -587,6 +587,36 @@ input:checked + .resize-slider:before {
     font-size: 2rem;
 }
 
+/* New styles for WEBP size overlay */
+.webp-size-overlay {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
+.size-change-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 4px;
+}
+
+.size-change-positive {
+    color: #ef4444;
+}
+
+.size-change-negative {
+    color: #10b981;
+}
+
 @media (max-width: 768px) {
     .files-list {
         grid-template-columns: 1fr;
@@ -611,5 +641,10 @@ input:checked + .resize-slider:before {
     
     .resize-fields {
         grid-template-columns: 1fr;
+    }
+    
+    .webp-size-overlay {
+        font-size: 0.6rem;
+        padding: 3px 6px;
     }
 }
