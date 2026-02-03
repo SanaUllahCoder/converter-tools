@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to WEBP Converter | Modern Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h1>SVG to WEBP Converter</h1>
+            </div>
+            <p class="subtitle">Convert SVG files to WEBP format with lossless quality and exact dimensions. Fast, secure, and entirely client-side.</p>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalFiles">0</h3>
+                    <p>Files Uploaded</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="convertedFiles">0</h3>
+                    <p>Files Converted</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-weight-hanging"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalSize">0 KB</h3>
+                    <p>Total Size Saved</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h2>Upload Your SVG Files</h2>
+            <p>Drag & drop your SVG files here or click to browse. All conversion happens in your browser - your files never leave your computer.</p>
+            <button class="btn" id="uploadBtn">
+                <i class="fas fa-folder-open"></i> Choose Files
+            </button>
+            <input type="file" id="fileInput" class="file-input" accept=".svg" multiple>
+        </div>
+
+        <div class="resize-options">
+            <div class="resize-header">
+                <h3>Custom Dimensions</h3>
+                <label class="resize-toggle">
+                    <input type="checkbox" id="resizeToggle">
+                    <span class="resize-slider"></span>
+                </label>
+            </div>
+            <div class="resize-fields" id="resizeFields">
+                <div class="field-group">
+                    <label for="widthInput">Width (px)</label>
+                    <input type="number" id="widthInput" min="1" disabled>
+                </div>
+                <div class="field-group">
+                    <label for="heightInput">Height (px)</label>
+                    <input type="number" id="heightInput" min="1" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="files-list" id="filesList">
+            <!-- Files will be added here dynamically -->
+        </div>
+
+        <div class="global-actions">
+            <button class="btn" id="convertAllBtn" disabled>
+                <i class="fas fa-sync-alt"></i> Convert All
+            </button>
+            <button class="btn btn-secondary" id="downloadAllBtn" disabled>
+                <i class="fas fa-download"></i> Download All (ZIP)
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

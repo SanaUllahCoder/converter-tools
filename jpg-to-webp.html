@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPG to WEBP Converter | Modern Image Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add JSZip library for creating ZIP files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 6px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            color: var(--gray-900);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .upload-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.7s ease-out 0.1s both;
+        }
+        
+        .upload-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--gray-300);
+            border-radius: var(--radius-md);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--gray-50);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.03);
+        }
+        
+        .upload-area.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.08);
+        }
+        
+        .upload-area i {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .upload-area h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--gray-900);
+        }
+        
+        .upload-area p {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .upload-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+        
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+        
+        .upload-btn.secondary {
+            background: linear-gradient(135deg, var(--gray-600), var(--gray-700));
+            box-shadow: 0 4px 12px rgba(75, 85, 99, 0.3);
+        }
+        
+        .upload-btn.secondary:hover {
+            background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
+        }
+        
+        .upload-btn.warning {
+            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        .upload-btn.warning:hover {
+            background: linear-gradient(135deg, #d97706, var(--warning-color));
+        }
+        
+        .upload-btn.success {
+            background: linear-gradient(135deg, var(--success-color), #34d399);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .upload-btn.success:hover {
+            background: linear-gradient(135deg, #0da271, var(--success-color));
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .quality-control {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .quality-control h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--gray-900);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .quality-slider {
+            flex-grow: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--gray-200);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .quality-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .quality-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            min-width: 50px;
+        }
+        
+        .quality-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+        }
+        
+        .images-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+        
+        .image-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            transition: transform 0.3s ease;
+        }
+        
+        .image-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .image-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .image-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        
+        .file-info {
+            display: flex;
+            gap: 15px;
+            color: var(--gray-700);
+            font-size: 0.95rem;
+        }
+        
+        .file-size {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        @media (min-width: 768px) {
+            .preview-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .preview-box {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--gray-50);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--gray-900);
+            font-size: 1.1rem;
+        }
+        
+        .preview-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            object-fit: contain;
+        }
+        
+        .conversion-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .file-size-comparison {
+            display: flex;
+            gap: 20px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .size-jpg {
+            color: var(--primary-color);
+        }
+        
+        .size-webp {
+            color: var(--success-color);
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, var(--success-color), #34d399);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(135deg, #0da271, var(--success-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 6px solid var(--gray-200);
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--gray-900);
+            font-weight: 600;
+            text-align: center;
+            max-width: 300px;
+        }
+        
+        .no-images {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-700);
+        }
+        
+        .no-images i {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .stats-bar {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px 30px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            animation: slideUp 0.7s ease-out 0.2s both;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            margin-top: 5px;
+        }
+        
+        .conversion-stats {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+            animation: fadeIn 0.8s ease-out 0.5s both;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-card {
+                padding: 25px;
+            }
+            
+            .upload-area {
+                padding: 40px 15px;
+            }
+            
+            .image-card {
+                padding: 20px;
+            }
+            
+            .file-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+        }
+        
+        .uploaded-files {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+        }
+        
+        .file-icon {
+            color: var(--primary-color);
+        }
+        
+        .file-name {
+            flex-grow: 1;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-file:hover {
+            color: var(--error-color);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .conversion-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-converted {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-converting {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .file-size-savings {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>JPG to WEBP Converter</h1>
+            <p class="subtitle">Convert your JPG/JPEG images to modern WEBP format with high quality and small file size. Works entirely in your browser - no data uploaded to servers.</p>
+        </header>
+        
+        <div class="stats-bar" id="statsBar" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-value" id="totalImages">0</div>
+                <div class="stat-label">Total Images</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="convertedImages">0</div>
+                <div class="stat-label">Converted</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalSavings">0%</div>
+                <div class="stat-label">Size Savings</div>
+            </div>
+            <div class="stat-item">
+                <div class="conversion-stats">
+                    <button class="upload-btn success" id="downloadAllBtn" style="display: none;">
+                        <i class="fas fa-file-archive"></i> Download All WEBP
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="upload-card">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drag & Drop Your Images Here</h3>
+                    <p>Upload JPG or JPEG images to convert to WEBP format</p>
+                    <p>Supports multiple image upload (Max 10 images at once)</p>
+                    <button class="upload-btn" id="uploadBtn">
+                        <i class="fas fa-folder-open"></i> Choose Images
+                    </button>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.jpe,.jfif,.jif" multiple style="display: none;">
+                </div>
+                
+                <div class="uploaded-files" id="uploadedFiles"></div>
+                
+                <div class="action-buttons">
+                    <button class="upload-btn warning" id="convertAllBtn">
+                        <i class="fas fa-sync-alt"></i> Convert All Images
+                    </button>
+                    <button class="upload-btn secondary" id="clearAllBtn">
+                        <i class="fas fa-trash-alt"></i> Clear All
+                    </button>
+                </div>
+                
+                <div class="quality-control">
+                    <h4>Conversion Quality</h4>
+                    <div class="slider-container">
+                        <input type="range" min="0.5" max="1" step="0.05" value="0.85" class="quality-slider" id="qualitySlider">
+                        <span class="quality-value" id="qualityValue">85%</span>
+                    </div>
+                    <div class="quality-labels">
+                        <span>Smaller File Size</span>
+                        <span>Better Quality</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="images-container" id="imagesContainer">
+                <div class="no-images" id="noImagesMessage">
+                    <i class="fas fa-images"></i>
+                    <h3>No images uploaded yet</h3>
+                    <p>Upload JPG images to see previews and convert them to WEBP</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>JPG to WEBP Converter &copy; 2023 | Works entirely in your browser - no data is sent to any server</p>
+            <p>Supported browsers: Chrome, Edge, Firefox, Safari</p>
+        </footer>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Converting images...</div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const imagesContainer = document.getElementById('imagesContainer');
+        const noImagesMessage = document.getElementById('noImagesMessage');
+        const uploadedFiles = document.getElementById('uploadedFiles');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const convertAllBtn = document.getElementById('convertAllBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const statsBar = document.getElementById('statsBar');
+        const totalImagesElement = document.getElementById('totalImages');
+        const convertedImagesElement = document.getElementById('convertedImages');
+        const totalSavingsElement = document.getElementById('totalSavings');
+        
+        // State
+        let uploadedImages = [];
+        let isConvertingAll = false;
+        
+        // Event Listeners
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        qualitySlider.addEventListener('input', updateQualityValue);
+        convertAllBtn.addEventListener('click', convertAllImages);
+        clearAllBtn.addEventListener('click', clearAllImages);
+        downloadAllBtn.addEventListener('click', downloadAllImages);
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('highlight');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('highlight');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('highlight');
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.type.startsWith('image/') && 
+                (file.name.toLowerCase().endsWith('.jpg') || 
+                 file.name.toLowerCase().endsWith('.jpeg') ||
+                 file.name.toLowerCase().endsWith('.jpe') ||
+                 file.name.toLowerCase().endsWith('.jfif') ||
+                 file.name.toLowerCase().endsWith('.jif'))
+            );
+            
+            if (files.length > 0) {
+                if (uploadedImages.length + files.length > 10) {
+                    alert(`You can only upload up to 10 images at once. You already have ${uploadedImages.length} images.`);
+                    return;
+                }
+                processFiles(files);
+            } else {
+                alert('Please drop JPG/JPEG images only.');
+            }
+        });
+        
+        // Functions
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            if (uploadedImages.length + files.length > 10) {
+                alert(`You can only upload up to 10 images at once. You already have ${uploadedImages.length} images.`);
+                fileInput.value = '';
+                return;
+            }
+            processFiles(files);
+            fileInput.value = '';
+        }
+        
+        function processFiles(files) {
+            // Filter for JPG/JPEG images only
+            const imageFiles = files.filter(file => 
+                file.type.startsWith('image/') && 
+                (file.type === 'image/jpeg' || 
+                 file.name.toLowerCase().endsWith('.jpg') || 
+                 file.name.toLowerCase().endsWith('.jpeg') ||
+                 file.name.toLowerCase().endsWith('.jpe') ||
+                 file.name.toLowerCase().endsWith('.jfif') ||
+                 file.name.toLowerCase().endsWith('.jif'))
+            );
+            
+            if (imageFiles.length === 0) {
+                alert('Please select JPG/JPEG images only.');
+                return;
+            }
+            
+            // Process each file
+            let processedCount = 0;
+            
+            imageFiles.forEach(file => {
+                // Check file size (limit to 10MB per image)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`Image "${file.name}" is too large (${(file.size / (1024*1024)).toFixed(1)}MB). Maximum size is 10MB.`);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const imageData = {
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        size: file.size,
+                        url: e.target.result,
+                        webpUrl: null,
+                        webpSize: null,
+                        converted: false,
+                        converting: false
+                    };
+                    
+                    uploadedImages.push(imageData);
+                    processedCount++;
+                    
+                    // When all files are processed
+                    if (processedCount === imageFiles.length) {
+                        updateUploadedFilesList();
+                        updateStats();
+                        
+                        // Create image cards for all uploaded images
+                        uploadedImages.slice(-imageFiles.length).forEach(img => {
+                            createImageCard(img);
+                        });
+                        
+                        // Hide no images message
+                        noImagesMessage.style.display = 'none';
+                        
+                        // Show stats bar
+                        statsBar.style.display = 'flex';
+                        
+                        // Show animation
+                        uploadArea.style.transform = 'scale(1.02)';
+                        uploadArea.style.boxShadow = '0 0 0 3px rgba(79, 70, 229, 0.1)';
+                        
+                        setTimeout(() => {
+                            uploadArea.style.transform = 'scale(1)';
+                            uploadArea.style.boxShadow = 'none';
+                        }, 300);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    alert(`Failed to read file: ${file.name}`);
+                    processedCount++;
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function updateUploadedFilesList() {
+            uploadedFiles.innerHTML = '';
+            
+            if (uploadedImages.length === 0) {
+                uploadedFiles.style.display = 'none';
+                return;
+            }
+            
+            uploadedFiles.style.display = 'flex';
+            
+            uploadedImages.forEach((image, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileSize = (image.size / 1024).toFixed(1);
+                let statusClass = 'status-pending';
+                let statusText = 'Pending';
+                let statusIcon = 'fa-clock';
+                
+                if (image.converting) {
+                    statusClass = 'status-converting';
+                    statusText = 'Converting';
+                    statusIcon = 'fa-sync-alt fa-spin';
+                } else if (image.converted) {
+                    statusClass = 'status-converted';
+                    statusText = 'Converted';
+                    statusIcon = 'fa-check-circle';
+                }
+                
+                fileItem.innerHTML = `
+                    <i class="fas fa-file-image file-icon"></i>
+                    <span class="file-name">${image.name}</span>
+                    <span class="conversion-status ${statusClass}">
+                        <i class="fas ${statusIcon}"></i>
+                        ${statusText}
+                    </span>
+                    <span>${fileSize} KB</span>
+                    <button class="remove-file" data-index="${index}" title="Remove image">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                uploadedFiles.appendChild(fileItem);
+            });
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-file').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeImage(index);
+                });
+            });
+        }
+        
+        function removeImage(index) {
+            if (index < 0 || index >= uploadedImages.length) return;
+            
+            // Revoke object URL if it exists
+            if (uploadedImages[index].webpUrl) {
+                URL.revokeObjectURL(uploadedImages[index].webpUrl);
+            }
+            
+            // Remove the image card
+            const imageCard = document.getElementById(`image-card-${uploadedImages[index].id}`);
+            if (imageCard) {
+                imageCard.style.opacity = '0';
+                imageCard.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    imageCard.remove();
+                }, 300);
+            }
+            
+            // Remove from array
+            uploadedImages.splice(index, 1);
+            
+            // Update file list and stats
+            updateUploadedFilesList();
+            updateStats();
+            
+            // Show no images message if empty
+            if (uploadedImages.length === 0) {
+                noImagesMessage.style.display = 'block';
+                statsBar.style.display = 'none';
+            }
+        }
+        
+        function clearAllImages() {
+            if (uploadedImages.length === 0) return;
+            
+            if (confirm(`Are you sure you want to remove all ${uploadedImages.length} images?`)) {
+                // Revoke all object URLs
+                uploadedImages.forEach(img => {
+                    if (img.webpUrl) {
+                        URL.revokeObjectURL(img.webpUrl);
+                    }
+                });
+                
+                // Remove all image cards with animation
+                const imageCards = document.querySelectorAll('.image-card');
+                imageCards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        card.remove();
+                    }, index * 50);
+                });
+                
+                // Clear the array
+                uploadedImages = [];
+                
+                // Update UI
+                updateUploadedFilesList();
+                updateStats();
+                noImagesMessage.style.display = 'block';
+                statsBar.style.display = 'none';
+                downloadAllBtn.style.display = 'none';
+            }
+        }
+        
+        function updateQualityValue() {
+            const value = qualitySlider.value;
+            const percent = Math.round(value * 100);
+            qualityValue.textContent = `${percent}%`;
+        }
+        
+        function updateStats() {
+            const totalImages = uploadedImages.length;
+            const convertedImages = uploadedImages.filter(img => img.converted).length;
+            
+            totalImagesElement.textContent = totalImages;
+            convertedImagesElement.textContent = `${convertedImages}/${totalImages}`;
+            
+            // Calculate total size savings
+            let totalOriginalSize = 0;
+            let totalWebpSize = 0;
+            
+            uploadedImages.forEach(img => {
+                totalOriginalSize += img.size;
+                if (img.webpSize) {
+                    totalWebpSize += img.webpSize;
+                }
+            });
+            
+            if (convertedImages > 0 && totalWebpSize > 0) {
+                const savingsPercent = Math.round((1 - totalWebpSize / totalOriginalSize) * 100);
+                totalSavingsElement.textContent = `${savingsPercent}%`;
+                
+                // Show download all button if at least one image is converted
+                if (convertedImages > 0) {
+                    downloadAllBtn.style.display = 'flex';
+                }
+            } else {
+                totalSavingsElement.textContent = '0%';
+                if (convertedImages === 0) {
+                    downloadAllBtn.style.display = 'none';
+                }
+            }
+        }
+        
+        function createImageCard(imageData) {
+            // Check if card already exists
+            if (document.getElementById(`image-card-${imageData.id}`)) {
+                return;
+            }
+            
+            const imageCard = document.createElement('div');
+            imageCard.className = 'image-card';
+            imageCard.id = `image-card-${imageData.id}`;
+            imageCard.style.opacity = '0';
+            imageCard.style.transform = 'translateY(20px)';
+            
+            const fileSizeKB = (imageData.size / 1024).toFixed(1);
+            const statusClass = imageData.converted ? 'status-converted' : (imageData.converting ? 'status-converting' : 'status-pending');
+            const statusText = imageData.converted ? 'Converted' : (imageData.converting ? 'Converting' : 'Pending');
+            const statusIcon = imageData.converted ? 'fa-check-circle' : (imageData.converting ? 'fa-sync-alt fa-spin' : 'fa-clock');
+            
+            imageCard.innerHTML = `
+                <div class="image-header">
+                    <div class="image-title">${imageData.name}</div>
+                    <div class="file-info">
+                        <div class="file-size">
+                            <i class="fas fa-weight-hanging"></i>
+                            <span>${fileSizeKB} KB</span>
+                        </div>
+                        <div class="file-type">
+                            <i class="fas fa-file-image"></i>
+                            <span>JPG</span>
+                        </div>
+                        <span class="conversion-status ${statusClass}">
+                            <i class="fas ${statusIcon}"></i>
+                            ${statusText}
+                        </span>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div class="preview-box">
+                        <div class="preview-title">Original JPG</div>
+                        <img src="${imageData.url}" alt="Original" class="preview-img" id="original-${imageData.id}" loading="lazy">
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-title">Converted WEBP</div>
+                        <div class="preview-placeholder" id="preview-placeholder-${imageData.id}" style="${imageData.converted ? 'display: none;' : ''}">
+                            <div style="padding: 60px 20px; color: var(--gray-500);">
+                                ${imageData.converting ? 
+                                    `<i class="fas fa-sync-alt fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                                    <p>Converting to WEBP...</p>` : 
+                                    `<i class="fas fa-sync-alt" style="font-size: 2rem; margin-bottom: 15px; color: var(--gray-300);"></i>
+                                    <p>Click "Convert to WEBP" to start conversion</p>`}
+                            </div>
+                        </div>
+                        <img src="${imageData.webpUrl || ''}" alt="Converted" class="preview-img" id="converted-${imageData.id}" style="display: ${imageData.converted ? 'block' : 'none'};" loading="lazy">
+                    </div>
+                </div>
+                <div class="conversion-result">
+                    <div class="file-size-comparison" id="size-comparison-${imageData.id}" style="display: ${imageData.converted ? 'flex' : 'none'};">
+                        <div class="size-jpg">
+                            <i class="fas fa-file-image"></i>
+                            <span>JPG: ${fileSizeKB} KB</span>
+                        </div>
+                        <div class="size-webp" id="webp-size-${imageData.id}">
+                            <i class="fas fa-file-image"></i>
+                            <span>WEBP: ${imageData.webpSize ? (imageData.webpSize / 1024).toFixed(1) + ' KB' : '-- KB'}</span>
+                        </div>
+                        ${imageData.webpSize ? `<div class="file-size-savings" id="savings-${imageData.id}">
+                            <i class="fas fa-chart-line"></i>
+                            <span>${Math.round((1 - imageData.webpSize / imageData.size) * 100)}% smaller</span>
+                        </div>` : ''}
+                    </div>
+                    <button class="download-btn ${imageData.converted ? 'success' : ''}" id="convert-btn-${imageData.id}" ${imageData.converting || isConvertingAll ? 'disabled' : ''}>
+                        ${imageData.converting ? 
+                            '<i class="fas fa-spinner fa-spin"></i> Converting...' : 
+                            imageData.converted ? 
+                                '<i class="fas fa-download"></i> Download WEBP' : 
+                                '<i class="fas fa-sync-alt"></i> Convert to WEBP'}
+                    </button>
+                </div>
+            `;
+            
+            // Insert before the no-images message
+            imagesContainer.insertBefore(imageCard, noImagesMessage);
+            
+            // Animate card entry
+            setTimeout(() => {
+                imageCard.style.transition = 'all 0.5s ease';
+                imageCard.style.opacity = '1';
+                imageCard.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // Add event listener to convert button
+            const convertBtn = document.getElementById(`convert-btn-${imageData.id}`);
+            if (!imageData.converted && !imageData.converting) {
+                convertBtn.addEventListener('click', () => convertImageToWebp(imageData.id));
+            } else if (imageData.converted) {
+                convertBtn.addEventListener('click', () => downloadWebpImage(imageData.id));
+            }
+        }
+        
+        async function convertImageToWebp(imageId) {
+            const imageIndex = uploadedImages.findIndex(img => img.id === imageId);
+            if (imageIndex === -1 || uploadedImages[imageIndex].converted || uploadedImages[imageIndex].converting) return;
+            
+            // Mark as converting
+            uploadedImages[imageIndex].converting = true;
+            
+            // Update UI for this specific image
+            updateImageCardUI(imageId);
+            
+            try {
+                // Create an image element to load the original
+                const img = new Image();
+                
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = uploadedImages[imageIndex].url;
+                });
+                
+                // Create a canvas to draw the image
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // Draw image on canvas
+                const ctx = canvas.getContext('2d');
+                
+                // Fill with white background for transparent JPGs
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                
+                // Get quality from slider
+                const quality = parseFloat(qualitySlider.value);
+                
+                // Convert to WEBP
+                const blob = await new Promise((resolve) => {
+                    canvas.toBlob(resolve, 'image/webp', quality);
+                });
+                
+                if (!blob) {
+                    throw new Error('Conversion failed');
+                }
+                
+                // Create object URL for the WEBP image
+                const webpUrl = URL.createObjectURL(blob);
+                
+                // Update image data
+                uploadedImages[imageIndex].webpUrl = webpUrl;
+                uploadedImages[imageIndex].webpSize = blob.size;
+                uploadedImages[imageIndex].converted = true;
+                uploadedImages[imageIndex].converting = false;
+                
+                // Update UI
+                updateImageCardUI(imageId);
+                
+                // Update file list and stats
+                updateUploadedFilesList();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Conversion error:', error);
+                
+                // Reset converting status
+                uploadedImages[imageIndex].converting = false;
+                
+                // Update UI
+                updateImageCardUI(imageId);
+                
+                // Show error message
+                alert(`Failed to convert "${uploadedImages[imageIndex].name}". Please try again.`);
+            }
+        }
+        
+        function updateImageCardUI(imageId) {
+            const imageIndex = uploadedImages.findIndex(img => img.id === imageId);
+            if (imageIndex === -1) return;
+            
+            const imageData = uploadedImages[imageIndex];
+            const imageCard = document.getElementById(`image-card-${imageId}`);
+            
+            if (!imageCard) return;
+            
+            // Update status in header
+            const statusElement = imageCard.querySelector('.conversion-status');
+            if (statusElement) {
+                if (imageData.converting) {
+                    statusElement.className = 'conversion-status status-converting';
+                    statusElement.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Converting';
+                } else if (imageData.converted) {
+                    statusElement.className = 'conversion-status status-converted';
+                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Converted';
+                } else {
+                    statusElement.className = 'conversion-status status-pending';
+                    statusElement.innerHTML = '<i class="fas fa-clock"></i> Pending';
+                }
+            }
+            
+            // Update preview
+            const previewPlaceholder = document.getElementById(`preview-placeholder-${imageId}`);
+            const webpPreview = document.getElementById(`converted-${imageId}`);
+            
+            if (imageData.converted && imageData.webpUrl) {
+                if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+                if (webpPreview) {
+                    webpPreview.src = imageData.webpUrl;
+                    webpPreview.style.display = 'block';
+                    webpPreview.style.opacity = '0';
+                    webpPreview.style.transform = 'scale(0.95)';
+                    
+                    setTimeout(() => {
+                        webpPreview.style.transition = 'all 0.5s ease';
+                        webpPreview.style.opacity = '1';
+                        webpPreview.style.transform = 'scale(1)';
+                    }, 50);
+                }
+                
+                // Update size comparison
+                const sizeComparison = document.getElementById(`size-comparison-${imageId}`);
+                const webpSizeElement = document.getElementById(`webp-size-${imageId}`);
+                const savingsElement = document.getElementById(`savings-${imageId}`);
+                
+                if (sizeComparison) sizeComparison.style.display = 'flex';
+                if (webpSizeElement && imageData.webpSize) {
+                    webpSizeElement.innerHTML = `<i class="fas fa-file-image"></i> WEBP: ${(imageData.webpSize / 1024).toFixed(1)} KB`;
+                }
+                
+                // Add savings if not exists
+                if (!savingsElement && imageData.webpSize) {
+                    const savings = Math.round((1 - imageData.webpSize / imageData.size) * 100);
+                    const sizeComparison = document.getElementById(`size-comparison-${imageId}`);
+                    if (sizeComparison) {
+                        const savingsDiv = document.createElement('div');
+                        savingsDiv.className = 'file-size-savings';
+                        savingsDiv.id = `savings-${imageId}`;
+                        savingsDiv.innerHTML = `<i class="fas fa-chart-line"></i><span>${savings}% smaller</span>`;
+                        sizeComparison.appendChild(savingsDiv);
+                    }
+                }
+            }
+            
+            // Update button
+            const convertBtn = document.getElementById(`convert-btn-${imageId}`);
+            if (convertBtn) {
+                if (imageData.converting) {
+                    convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting...';
+                    convertBtn.disabled = true;
+                } else if (imageData.converted) {
+                    convertBtn.innerHTML = '<i class="fas fa-download"></i> Download WEBP';
+                    convertBtn.className = 'download-btn success';
+                    convertBtn.disabled = false;
+                    convertBtn.onclick = () => downloadWebpImage(imageId);
+                } else {
+                    convertBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Convert to WEBP';
+                    convertBtn.className = 'download-btn';
+                    convertBtn.disabled = isConvertingAll;
+                    convertBtn.onclick = () => convertImageToWebp(imageId);
+                }
+            }
+        }
+        
+        function downloadWebpImage(imageId) {
+            const imageData = uploadedImages.find(img => img.id === imageId);
+            if (!imageData || !imageData.webpUrl) return;
+            
+            // Create a download link
+            const link = document.createElement('a');
+            link.href = imageData.webpUrl;
+            
+            // Change file extension to .webp
+            const originalName = imageData.name;
+            const webpName = originalName.substring(0, originalName.lastIndexOf('.')) + '.webp';
+            link.download = webpName;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        async function convertAllImages() {
+            if (uploadedImages.length === 0) return;
+            
+            // Check if all images are already converted
+            const pendingImages = uploadedImages.filter(img => !img.converted);
+            if (pendingImages.length === 0) {
+                alert('All images have already been converted!');
+                return;
+            }
+            
+            // Show loading overlay
+            loadingOverlay.classList.add('active');
+            loadingText.textContent = `Converting ${pendingImages.length} images...`;
+            isConvertingAll = true;
+            
+            // Disable convert all button
+            convertAllBtn.disabled = true;
+            convertAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting All...';
+            
+            // Convert images one by one
+            for (let i = 0; i < pendingImages.length; i++) {
+                const imageId = pendingImages[i].id;
+                loadingText.textContent = `Converting image ${i + 1} of ${pendingImages.length}...`;
+                
+                // Convert this image
+                await convertImageToWebp(imageId);
+                
+                // Small delay to prevent UI freeze
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            // Hide loading overlay
+            loadingOverlay.classList.remove('active');
+            isConvertingAll = false;
+            
+            // Re-enable convert all button
+            convertAllBtn.disabled = false;
+            convertAllBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Convert All Images';
+            
+            // Show success message
+            alert(`Successfully converted ${pendingImages.length} images to WEBP format!`);
+        }
+        
+        async function downloadAllImages() {
+            // Check if we have converted images
+            const convertedImages = uploadedImages.filter(img => img.converted);
+            
+            if (convertedImages.length === 0) {
+                alert('No images have been converted yet. Please convert images first.');
+                return;
+            }
+            
+            // Show loading
+            loadingOverlay.classList.add('active');
+            loadingText.textContent = `Preparing ${convertedImages.length} WEBP images for download...`;
+            
+            try {
+                // Create a new ZIP file
+                const zip = new JSZip();
+                
+                // Add each converted image to the ZIP
+                for (let i = 0; i < convertedImages.length; i++) {
+                    const imageData = convertedImages[i];
+                    
+                    // Update loading text
+                    loadingText.textContent = `Processing image ${i + 1} of ${convertedImages.length}...`;
+                    
+                    // Fetch the blob from the object URL
+                    const response = await fetch(imageData.webpUrl);
+                    const blob = await response.blob();
+                    
+                    // Change file extension to .webp
+                    const originalName = imageData.name;
+                    const webpName = originalName.substring(0, originalName.lastIndexOf('.')) + '.webp';
+                    
+                    // Add to ZIP
+                    zip.file(webpName, blob);
+                }
+                
+                // Generate the ZIP file
+                loadingText.textContent = 'Creating ZIP archive...';
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                
+                // Create download link for the ZIP
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(zipBlob);
+                link.download = 'converted-webp-images.zip';
+                
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up
+                setTimeout(() => {
+                    URL.revokeObjectURL(link.href);
+                }, 100);
+                
+                // Hide loading overlay
+                loadingOverlay.classList.remove('active');
+                
+                // Show success message
+                alert(`Successfully downloaded ${convertedImages.length} WEBP images in a ZIP archive!`);
+                
+            } catch (error) {
+                console.error('Error creating ZIP:', error);
+                loadingOverlay.classList.remove('active');
+                alert('Failed to create ZIP archive. Please try again.');
+            }
+        }
+        
+        // Initialize quality value display
+        updateQualityValue();
+        
+        // Add a subtle animation to the upload area on page load
+        setTimeout(() => {
+            uploadArea.style.transform = 'scale(1.02)';
+            uploadArea.style.boxShadow = '0 0 0 3px rgba(79, 70, 229, 0.1)';
+            
+            setTimeout(() => {
+                uploadArea.style.transform = 'scale(1)';
+                uploadArea.style.boxShadow = 'none';
+            }, 500);
+        }, 1000);
+    </script>
+</body>
+</html>
